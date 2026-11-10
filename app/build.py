@@ -222,6 +222,8 @@ def write_database(settings: Settings, invoices: list[dict], accounts: list[dict
     try:
         conn.execute(schema.invoices_ddl())
         conn.execute(schema.ACCOUNTS_DDL)
+        conn.execute(schema.invoice_facts_ddl())
+        conn.execute(schema.ACCOUNT_FACTS_DDL)
         conn.executemany(
             f"INSERT INTO invoices ({', '.join(schema.INVOICE_COLUMNS)}) "
             f"VALUES ({', '.join(':' + c for c in schema.INVOICE_COLUMNS)})",

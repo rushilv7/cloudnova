@@ -16,9 +16,9 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | --- | --- | --- | --- |
 | 0 | Repository and spec | Spec is the first commit; CSV hash unchanged | Done |
 | 1 | Eval fixtures and runner skeleton | Runner lists every case; all fail or skip | Done |
-| 2 | Field normalization | Parsing, FX and date fixtures pass | Not started |
-| 3 | Conflict policy, tables, quality report | 5,125 = 109 + 2 + 28 + 4,986 | Not started |
-| 4 | Views and column dictionary | Six reference results match to the cent | Not started |
+| 2 | Field normalization | Parsing, FX and date fixtures pass | Done |
+| 3 | Conflict policy, tables, quality report | 5,125 = 109 + 2 + 28 + 4,986 | Done |
+| 4 | Views and column dictionary | Six reference results match to the cent | Done |
 | 5 | Query guard and read-only execution | Query-boundary cases pass; database unchanged | Not started |
 | 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Not started |
 | 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Not started |
@@ -31,6 +31,11 @@ Gate results and deviations from this plan, recorded as each checkpoint closes.
 
 - **Checkpoint 0.** The spec (`specs/solution.md`) is the first commit. The CSV moved to `data/cloudnova_invoices.csv` with SHA-256 `f542bc1f...9c89d84` unchanged. The repository already existed as an empty `main` branch when I started, so I did not run `git init`. Installed versions are `openai` 3.49.0 and `sqlglot` 30.31.0 on Python 3.11.13 with SQLite 3.50.2.
 - **Checkpoint 1.** `python -m evals` listed 57 offline cases and all 57 failed with `No module named 'app'`, exit status 1. Expected values are in `evals/expected.py` with the arithmetic beside them; five fixture ledgers are in `evals/fixtures/`. Deviation: the plan said one fixture ledger, and I used five small ones so each rule can be checked by hand on a few rows. The stubbed-model and live cases are not written yet; they are added at checkpoint 7 with the model adapter they exercise.
+- **Checkpoint 2.** All 11 normalization cases pass (amount parsing and rejection, FX rounding, five date formats, aliases, optional fields, the sign rule).
+- **Checkpoint 3.** On the supplied CSV the build reports 82 exact and 27 normalized duplicate rows (109), 2 rejected rows, 28 held rows across 14 invoice IDs, 4,986 eligible invoices, 3,803 accounts and 12 accounts without a snapshot. 109 + 2 + 28 + 4,986 = 5,125. All 14 conflicts differ only in status, and each has one `paid` candidate. Two builds give identical tables and report.
+- **Checkpoint 4.** Hand-written SQL over the views reproduces all six reference results and the top-five table to the cent, and the disputed 2024 contribution of USD 31,018.68. All 13 fixture pipeline cases and 11 reference cases pass. Two observations worth knowing:
+  - Account disagreement counts over eligible invoices are 978 accounts with several invoices, 974 with differing names, 772 with differing regions and 334 with differing churn flags. The spec's 980, 976 and 774 were counted before conflicts were excluded, so the two-account difference is expected.
+  - 1,332 of 1,417 foreign-currency non-refund invoices have a recorded amount equal to the USD list price times the FX rate. This quantifies the FX discrepancy in spec section 2. Conversion still follows the briefing, as the spec requires.
 
 ## What changed from the first plan
 
