@@ -19,8 +19,8 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | 2 | Field normalization | Parsing, FX and date fixtures pass | Done |
 | 3 | Conflict policy, tables, quality report | 5,125 = 109 + 2 + 28 + 4,986 | Done |
 | 4 | Views and column dictionary | Six reference results match to the cent | Done |
-| 5 | Query guard and read-only execution | Query-boundary cases pass; database unchanged | Not started |
-| 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Not started |
+| 5 | Query guard and read-only execution | Query-boundary cases pass; database unchanged | Done |
+| 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Done |
 | 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Not started |
 | 8 | Live evaluation (needs your Azure details) | Baseline, unseen, ambiguous and missing-data cases run | Not started |
 | 9 | README, diagram, prompt log | Setup works from a fresh clone | Not started |
@@ -36,6 +36,11 @@ Gate results and deviations from this plan, recorded as each checkpoint closes.
 - **Checkpoint 4.** Hand-written SQL over the views reproduces all six reference results and the top-five table to the cent, and the disputed 2024 contribution of USD 31,018.68. All 13 fixture pipeline cases and 11 reference cases pass. Two observations worth knowing:
   - Account disagreement counts over eligible invoices are 978 accounts with several invoices, 974 with differing names, 772 with differing regions and 334 with differing churn flags. The spec's 980, 976 and 774 were counted before conflicts were excluded, so the two-account difference is expected.
   - 1,332 of 1,417 foreign-currency non-refund invoices have a recorded amount equal to the USD list price times the FX rate. This quantifies the FX discrepancy in spec section 2. Conversion still follows the briefing, as the spec requires.
+- **Checkpoint 5.** The guard rejects writes, multiple statements, comments, joins, CTEs, set operations, window functions, subqueries, unapproved views, functions and columns, unbound string filters, values outside a column's allowed set, `AVG` or division over money, sums of repeated account values in `invoice_facts`, and mixed-currency local sums. The connection separately denies writes, catalog reads and unapproved functions through the SQLite authorizer. Validation needs no database, so `guard_rejects`, `guard_accepts` and `authorizer_denies` passed here; the three guard cases that go through a whole answer passed at checkpoint 6.
+- **Checkpoint 6.** `python -m evals` reports 57 cases: 56 passed, 1 expected failure, 0 failed. The expected failure is month-over-month growth for every month, which needs a window function and is refused. The 2024 paid answer is labelled an eligible subtotal, names INV-101678, INV-103437 and INV-103655 (USD 31,018.68 if accepted) and exports 888 invoices with their source rows. These runs use hand-written proposals and print "hand-written proposal (not a model response)". Deviations from this plan:
+  - **Unresolved candidates are not a third table.** Interpretation 3 said they go into a table the model cannot reach. They stay in the quality report, and the application loads them into a private in-memory database with the same `invoice_facts` definition to rerun a query's filter. The spec allows only two tables, and this keeps disputed rows out of the file the model's SQL runs against.
+  - **`app/engine.py` is an extra module.** It validates a proposal, runs it and assembles warnings, exclusions and evidence. `app/answer.py` holds only the answer record and its formatting.
+  - **Evidence covers the evaluated population.** That is every row the query's own `WHERE` selects, before grouping and limits. For a ranking, each record is marked with whether it belongs to a returned group. If a query returns detail rows without the ID column, the evidence says it cannot identify individual returned rows.
 
 ## What changed from the first plan
 

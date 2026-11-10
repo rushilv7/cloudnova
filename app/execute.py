@@ -45,7 +45,8 @@ class QueryResult:
     truncated: bool
 
 
-def _authorize(action, arg1, arg2, _database, _source):
+def authorize(action, arg1, arg2, _database, _source):
+    """SQLite authorizer: allow SELECT over the modeled data with approved functions, deny everything else."""
     if action == sqlite3.SQLITE_SELECT:
         return sqlite3.SQLITE_OK
     if action == sqlite3.SQLITE_READ and arg1 in READABLE:
@@ -67,7 +68,7 @@ class Database:
         self._conn.execute("PRAGMA query_only = ON")
         if hasattr(self._conn, "enable_load_extension"):
             self._conn.enable_load_extension(False)
-        self._conn.set_authorizer(_authorize)
+        self._conn.set_authorizer(authorize)
         self._conn.set_progress_handler(self._expired, _PROGRESS_STEPS)
 
     def _expired(self) -> int:
