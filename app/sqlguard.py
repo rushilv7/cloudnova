@@ -177,6 +177,12 @@ def infer_unit(node: exp.Expression, view: schema.View) -> str | None:
     if isinstance(node, (exp.Add, exp.Sub)):
         left, right = infer_unit(node.this, view), infer_unit(node.expression, view)
         return left if left == right else None
+    if isinstance(node, exp.Mul):
+        # A measure scaled by a plain number keeps its unit (for example MRR x 12).
+        for measure, factor in ((node.this, node.expression), (node.expression, node.this)):
+            if isinstance(factor, exp.Literal) and not factor.is_string:
+                return infer_unit(measure, view)
+        return None
     if isinstance(node, exp.Case):
         results = [branch.args.get("true") for branch in node.args.get("ifs", [])]
         if node.args.get("default") is not None:
@@ -244,6 +250,8 @@ def validate_query(sql: str, parameters: dict, source_view: str, output_units: d
             _reject("unsupported_syntax", f"unsupported syntax: {type(node).__name__}")
         if isinstance(node, exp.Anonymous) and node.name.lower() not in _APPROVED_ANONYMOUS:
             _reject("unapproved_function", f"function {node.name} is not approved")
+        if isinstance(node, exp.If) and not isinstance(node.parent, exp.Case):
+            _reject("unapproved_function", "function IIF is not approved; write CASE WHEN ... THEN ... ELSE ... END")
         if isinstance(node, exp.Star) and not isinstance(node.parent, exp.Count):
             _reject("unsupported_syntax", "select columns by name; * is only allowed inside COUNT(*)")
 
@@ -353,6 +361,12 @@ def validate_query(sql: str, parameters: dict, source_view: str, output_units: d
 
     # Units and derived values.
     units = {name: infer_unit(expression, view) for name, expression in zip(names, expressions)}
+    for name, expression in zip(names, expressions):
+        money = any(column.unit in schema.MONEY_UNITS for column in _value_columns(expression, view))
+        if money and units[name] is None:
+            # Without a unit the value would be shown as a bare number of cents.
+            _reject("output_units", f"the unit of output {name!r} cannot be determined; select a money column, "
+                                    "aggregate it, add or subtract like units, or multiply by a plain number")
     declared = dict(output_units or {})
     for name, text in declared.items():
         if name not in units:

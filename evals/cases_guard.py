@@ -39,6 +39,8 @@ REJECTED = [
     ("average of money in SQL", "SELECT AVG(amount_usd_cents) AS a FROM invoice_facts", {}),
     ("division of aggregates in output", "SELECT SUM(net_revenue_cents) / COUNT(*) AS a FROM invoice_facts", {}),
     ("mixed-currency sum", "SELECT SUM(amount_local_cents) AS total FROM invoice_facts", {}),
+    ("money with no determinable unit", "SELECT invoice_id, amount_usd_cents * seats AS x FROM invoice_facts", {}),
+    ("function the connection would deny", "SELECT IIF(seats > 5, 1, 0) AS big FROM invoice_facts", {}),
     ("empty", "", {}),
     ("not sql", "show me everything", {}),
 ]
@@ -66,6 +68,10 @@ ACCEPTED = [
     ("account view ordering by ratio",
      "SELECT region, SUM(mrr_cents) AS mrr_cents, COUNT(*) AS accounts FROM account_facts WHERE churned = 0 "
      "GROUP BY region ORDER BY SUM(mrr_cents) * 1.0 / COUNT(*) DESC", {}, "account_facts"),
+    ("money scaled by a plain number keeps its unit",
+     "SELECT SUM(mrr_cents) * 12 AS annualized_mrr_cents FROM account_facts WHERE churned = 0", {}, "account_facts"),
+    ("money column used only in a condition",
+     "SELECT SUM(CASE WHEN amount_usd_cents > 100000 THEN 1 ELSE 0 END) AS large_invoices FROM invoice_facts", {}, V),
     ("min, max and average of a non-money column",
      "SELECT plan, MIN(seats) AS min_seats, MAX(seats) AS max_seats, AVG(seats) AS avg_seats FROM account_facts "
      "GROUP BY plan", {}, "account_facts"),
