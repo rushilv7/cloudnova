@@ -51,25 +51,36 @@ def prepare(proposal) -> tuple[Proposal, ValidatedQuery | None]:
     return parsed, query
 
 
+FAILURES = (ProposalError, QueryRejected, QueryTimeout, QueryDenied, QueryFailed)
+_ERROR_CODES = {ProposalError: "invalid_proposal", QueryRejected: "rejected_query", QueryTimeout: "query_timeout",
+                QueryDenied: "query_denied", QueryFailed: "sql_error"}
+
+
+def proposed_sql(proposal) -> str:
+    """The SQL text of a proposal in any form (dict, JSON text or parsed), for error reporting only."""
+    if isinstance(proposal, str):
+        try:
+            proposal = json.loads(proposal)
+        except ValueError:
+            return ""
+    sql = proposal.get("sql", "") if isinstance(proposal, dict) else getattr(proposal, "sql", "")
+    return sql if isinstance(sql, str) else ""
+
+
+def error_answer(exc: Exception, proposal, question: str | None = None, origin: str = "model") -> Answer:
+    """Turn a validation or execution failure into an error answer. No number is reported."""
+    detail = {"reject_code": exc.code} if isinstance(exc, QueryRejected) else {}
+    return Answer(kind="error", error_code=_ERROR_CODES[type(exc)], message=str(exc), sql=proposed_sql(proposal),
+                  detail=detail, origin=origin, question=question)
+
+
 def run_proposal(proposal, settings: Settings, question: str | None = None, origin: str = "model") -> Answer:
     """Validate and answer one proposal. Every failure becomes an error answer; nothing is guessed."""
-    base = {"origin": origin, "question": question}
-    sql = proposal.get("sql", "") if isinstance(proposal, dict) else getattr(proposal, "sql", "")
-    sql = sql if isinstance(sql, str) else ""
     try:
         parsed, query = prepare(proposal)
         return answer_prepared(parsed, query, settings, question=question, origin=origin)
-    except ProposalError as exc:
-        return Answer(kind="error", error_code="invalid_proposal", message=str(exc), **base)
-    except QueryRejected as exc:
-        return Answer(kind="error", error_code="rejected_query", message=str(exc), sql=sql,
-                      detail={"reject_code": exc.code}, **base)
-    except QueryTimeout as exc:
-        return Answer(kind="error", error_code="query_timeout", message=str(exc), sql=sql, **base)
-    except QueryDenied as exc:
-        return Answer(kind="error", error_code="query_denied", message=str(exc), sql=sql, **base)
-    except QueryFailed as exc:
-        return Answer(kind="error", error_code="sql_error", message=str(exc), sql=sql, **base)
+    except FAILURES as exc:
+        return error_answer(exc, proposal, question, origin)
 
 
 def answer_prepared(parsed: Proposal, query: ValidatedQuery | None, settings: Settings,

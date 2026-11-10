@@ -132,16 +132,24 @@ def render(answer: Answer) -> str:
 
     if answer.kind == "error":
         out.append(f"Error ({answer.error_code}): {answer.message}")
+        if answer.detail.get("first_error"):
+            out.append("The model's first proposal was also rejected, so its one repair attempt is used up. "
+                       f"First rejection: {answer.detail['first_error']}")
         if answer.sql:
             out.append(f"Proposed SQL (not executed): {answer.sql}")
+        elif answer.detail.get("model_reply"):
+            out.append(f"Model reply (not used): {answer.detail['model_reply']}")
         out.append("No number is reported.")
         return "\n".join(out)
+    if answer.repaired:
+        out.append("Note: the model's first proposal was rejected and it used its one repair attempt.")
     if answer.kind == "clarify":
         out.append(f"Clarification needed: {answer.message}")
         return "\n".join(out)
     if answer.kind == "explain":
-        out.append(f"Explanation: {answer.message}")
-        out.append(f"Source: {answer.detail.get('source', '')}")
+        out.append("Explanation (written by the model from the rules in its prompt, not computed from the data):")
+        out.append(f"  {answer.message}")
+        out.append(f"Source named by the model: {answer.detail.get('source', '')}")
         out.append("No query was run.")
         return "\n".join(out)
     if answer.kind == "unavailable":
@@ -181,8 +189,6 @@ def render(answer: Answer) -> str:
     out.append("")
     out.append(f"SQL: {answer.sql}")
     out.append(f"Parameters: {answer.parameters}")
-    if answer.repaired:
-        out.append("Note: the model's first proposal was rejected and it used its one repair attempt.")
     if answer.sample_refs:
         out.append(f"Record references (sample): {', '.join(answer.sample_refs)}")
     if answer.evidence_path:

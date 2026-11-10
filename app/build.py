@@ -21,8 +21,23 @@ from app.resolve import (
 )
 
 
+_MAX_LISTED_VALUES = 40
+
+
 class BuildError(Exception):
     """The input cannot be read or does not have the expected columns."""
+
+
+def is_current(settings: Settings) -> bool:
+    """True when the database and report were built from this CSV with the current rules."""
+    if not (settings.db_path.is_file() and settings.report_path.is_file()):
+        return False
+    try:
+        report = json.loads(settings.report_path.read_text(encoding="utf-8"))
+        sha256 = hashlib.sha256(settings.csv_path.read_bytes()).hexdigest()
+    except (OSError, ValueError):
+        return False
+    return report.get("input", {}).get("sha256") == sha256 and report.get("rules_version") == config.RULES_VERSION
 
 
 def read_csv(path) -> tuple[list[dict], str]:
@@ -142,6 +157,7 @@ def build_report(settings: Settings, sha256: str, rows: list[dict], resolution: 
             flag_counts[flag] = flag_counts.get(flag, 0) + 1
 
     dates = [inv["invoice_date"] for inv in invoices]
+    industries = sorted({inv["industry"] for inv in invoices if inv["industry"]})
     counts = {
         "input_rows": len(rows),
         "distinct_invoice_ids": len({raw["invoice_id"].strip() for raw in rows}),
@@ -181,6 +197,8 @@ def build_report(settings: Settings, sha256: str, rows: list[dict], resolution: 
             "malformed_email_rows": len(flagged_rows("email_malformed")),
             "invoice_date_min": min(dates) if dates else None,
             "invoice_date_max": max(dates) if dates else None,
+            # Category labels only; given to the model so it can filter on industry. Omitted if not a short list.
+            "industry_values": industries if len(industries) <= _MAX_LISTED_VALUES else None,
         },
         "eligible_invoice_flag_counts": dict(sorted(flag_counts.items())),
         "fx_discrepancy": _fx_discrepancy(invoices),
