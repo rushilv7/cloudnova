@@ -1,0 +1,8 @@
+{
+  "action": "query",
+  "source_view": "invoice_facts",
+  "interpretation": "Paid revenue on invoices dated in calendar year 2024; refunds are not subtracted",
+  "sql": "SELECT SUM(paid_revenue_cents) AS paid_revenue_cents, COUNT(*) AS invoices FROM invoice_facts WHERE status = :paid AND invoice_date >= :start AND invoice_date < :end",
+  "parameters": {"paid": "paid", "start": "2024-01-01", "end": "2025-01-01"},
+  "output_units": {"paid_revenue_cents": "USD cents"}
+}

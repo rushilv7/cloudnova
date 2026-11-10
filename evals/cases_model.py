@@ -407,3 +407,7 @@ def cli_build_and_proposal():
     eq(status, 1, "exit status for a rejected proposal")
     check("No number is reported" in out, "rejection text")
     eq(Path(out_dir / "cloudnova.db").is_file(), True, "database still present")
+
+    status, out, _err = _cli(["--show-prompt"], env)
+    eq(status, 0, "exit status of --show-prompt")
+    check("## The two views" in out and "### account_facts" in out, "the prompt is printed")

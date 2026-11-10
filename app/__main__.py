@@ -4,6 +4,7 @@
     python -m app --ask "QUESTION"     answer one question through the configured model
     python -m app --demo               build, then run the six stakeholder questions through the model
     python -m app --proposal FILE      run a hand-written JSON proposal (no model; labelled as such)
+    python -m app --show-prompt        print the instructions the model receives (no model call)
 
 Exit status: 0 when every question got an answer, a clarification or a stated
 limitation; 1 when any question ended in an error; 2 for configuration or
@@ -90,6 +91,7 @@ def main(argv: list[str] | None = None, env: Mapping[str, str] | None = None) ->
     mode.add_argument("--ask", metavar="QUESTION", help="answer one question through the configured model")
     mode.add_argument("--demo", action="store_true", help="build, then run the six stakeholder questions")
     mode.add_argument("--proposal", metavar="FILE", help="run a hand-written JSON proposal without a model")
+    mode.add_argument("--show-prompt", action="store_true", help="print the instructions the model receives")
     parser.add_argument("--reply", metavar="TEXT", help="with --ask: your answer if the tool asks for clarification")
     args = parser.parse_args(argv)
 
@@ -97,6 +99,12 @@ def main(argv: list[str] | None = None, env: Mapping[str, str] | None = None) ->
         settings = load_settings(env)
         if args.build:
             print(build_summary(settings, builder.build(settings)))
+            return 0
+
+        if args.show_prompt:
+            if not builder.is_current(settings):
+                builder.build(settings)
+            print(llm.system_prompt(engine.load_report(settings)))
             return 0
 
         if args.proposal:
