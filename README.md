@@ -14,7 +14,7 @@ Offline cleaning and `python -m evals` need no credentials.
 ## Setup
 
 ```bash
-git clone https://github.com/rushil-cog/cloudnova.git
+git clone https://github.com/rushilv7/cloudnova.git
 cd cloudnova
 
 python3.11 -m venv .venv
