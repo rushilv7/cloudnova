@@ -94,6 +94,29 @@ def full(**overrides):
     return _settings(base.csv_path, base.out_dir, **overrides) if overrides else base
 
 
+def scratch(name: str) -> Path:
+    """A fresh empty directory that is removed when the run ends."""
+    path = Path(tempfile.mkdtemp(prefix=f"{name}-", dir=_TMP))
+    return path
+
+
+def live():
+    """Settings for the supplied CSV with the developer's model credentials, and one shared transport."""
+    if "live" not in _BUILT:
+        from dataclasses import replace
+
+        from app.config import load_settings
+        from app.llm import AzureTransport
+
+        real = load_settings()
+        settings = replace(
+            full(), azure_endpoint=real.azure_endpoint, azure_api_key=real.azure_api_key,
+            azure_deployment=real.azure_deployment, azure_api_version=real.azure_api_version,
+            llm_timeout_s=real.llm_timeout_s)
+        _BUILT["live"] = (settings, AzureTransport(settings))
+    return _BUILT["live"]
+
+
 def report(settings) -> dict:
     return json.loads(Path(settings.report_path).read_text(encoding="utf-8"))
 

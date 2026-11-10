@@ -21,7 +21,7 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | 4 | Views and column dictionary | Six reference results match to the cent | Done |
 | 5 | Query guard and read-only execution | Query-boundary cases pass; database unchanged | Done |
 | 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Done |
-| 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Not started |
+| 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Done |
 | 8 | Live evaluation (needs your Azure details) | Baseline, unseen, ambiguous and missing-data cases run | Not started |
 | 9 | README, diagram, prompt log | Setup works from a fresh clone | Not started |
 
@@ -41,6 +41,16 @@ Gate results and deviations from this plan, recorded as each checkpoint closes.
   - **Unresolved candidates are not a third table.** Interpretation 3 said they go into a table the model cannot reach. They stay in the quality report, and the application loads them into a private in-memory database with the same `invoice_facts` definition to rerun a query's filter. The spec allows only two tables, and this keeps disputed rows out of the file the model's SQL runs against.
   - **`app/engine.py` is an extra module.** It validates a proposal, runs it and assembles warnings, exclusions and evidence. `app/answer.py` holds only the answer record and its formatting.
   - **Evidence covers the evaluated population.** That is every row the query's own `WHERE` selects, before grouping and limits. For a ranking, each record is marked with whether it belongs to a returned group. If a query returns detail rows without the ID column, the evidence says it cannot identify individual returned rows.
+- **Checkpoint 7.** `python -m evals` reports 96 cases: 70 passed, 1 expected failure, 25 skipped, 0 failed. Without credentials, `python -m app --ask ...` and `python -m app --demo` exit with status 2 and name the four missing settings, and `python -m evals --live` reports the 25 live cases as SKIP. **No model has been called yet.** The Azure request path, JSON mode on your deployment and every live case are untested until checkpoint 8. What the offline cases do cover, through a stub transport labelled "stub transport (not a model response)": a malformed reply, a rejected query repaired once, the limit of one repair, provider failure, a deadline that is not repaired, the four non-query actions, the clarification round trip, and the prompt's contents. Notes and deviations:
+  - **Two guard defects found while writing the prompt.** `IIF(...)` passed the SQLGlot guard but was denied by the SQLite authorizer, so the two layers disagreed. Money arithmetic with no inferable unit (for example `amount_usd_cents * seats`) was accepted and would have been shown as a bare number of cents. Both are now rejected by the guard, and multiplying money by a plain number keeps its unit.
+  - **The prompt is generated, not hand-maintained.** Columns, allowed values and units come from `app/schema.py`; prices and FX rates from `app/config.py`; counts and date coverage from the quality report. An offline case runs every function and example the prompt offers through the guard and the read-only connection.
+  - **Category labels in the prompt.** The ten industry labels are added to the quality report and given to the model so it can filter on industry. No rows, account names, IDs or email addresses are sent; an offline case checks this against the CSV.
+  - **No eval question or reference result is in the prompt.** An offline case checks the six stakeholder questions, every live question and the reference figures. The prompt does list what the ledger lacks (costs, payment dates, churn dates), so the gross-margin and churn-cause cases test that the model follows the contract, not that it discovers the gap unaided.
+  - **Relative periods ask for clarification.** The ledger has no as-of date and runs to 2027-07-23, so "last year" has no anchor. The six stakeholder questions name their period, so this does not affect the demo.
+  - **Repair covers a malformed reply as well as a rejected query**, still once in total. A timeout or an authorizer denial is reported and not repaired.
+  - **Extra CLI options.** `--build` builds without a model, `--proposal FILE` runs a hand-written proposal labelled as such, and `--reply TEXT` supplies a clarification when the terminal is not interactive.
+  - **Live checkers are tested offline.** `live_checkers_discriminate` feeds each baseline checker one correct and one plausible wrong hand-written proposal (for example net revenue instead of paid, or churned accounts left in the MRR denominator) and requires the wrong one to fail.
+  - **Held-out questions are still needed.** `HELD_OUT` in `evals/cases_live.py` is empty, and `live_held_out` reports SKIP until you supply them.
 
 ## What changed from the first plan
 
