@@ -1,0 +1,5 @@
+invoice_id,account_id,account_name,contact_email,region,industry,plan,billing_cycle,seats,currency,amount,discount_pct,status,payment_method,signup_date,invoice_date,churned,csat_score,support_tickets
+F-001,ACC-P1,Paid Net Co,billing@paidnet.com,NA,Retail,Starter,monthly,1,USD,100.00,0,paid,ACH,2023-01-01,2024-03-10,false,4,0
+F-002,ACC-P1,Paid Net Co,billing@paidnet.com,NA,Retail,Starter,monthly,1,USD,-20.00,0,refunded,ACH,2023-01-01,2024-04-02,false,4,0
+F-003,ACC-P1,Paid Net Co,billing@paidnet.com,NA,Retail,Starter,monthly,1,USD,50.00,0,pending,ACH,2023-01-01,2024-05-20,false,4,0
+F-004,ACC-P1,Paid Net Co,billing@paidnet.com,NA,Retail,Starter,monthly,1,USD,70.00,0,void,ACH,2023-01-01,2024-06-20,false,4,0

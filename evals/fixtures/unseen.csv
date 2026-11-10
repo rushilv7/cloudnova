@@ -1,0 +1,15 @@
+invoice_id,account_id,account_name,contact_email,region,industry,plan,billing_cycle,seats,currency,amount,discount_pct,status,payment_method,signup_date,invoice_date,churned,csat_score,support_tickets
+U-001,ACC-U1,Northwind Ltd,billing@northwind.com,EMEA,Fintech,Pro,annual,10,USD,9900.00,0,paid,wire,2023-06-01,2024-01-15,false,4,2
+U-002,ACC-U1,Northwind Ltd,billing@northwind.com,EMEA,Fintech,Pro,monthly,10,USD,-990.00,0,refunded,wire,2023-06-01,2024-01-20,false,4,5
+U-003,ACC-U2,Contoso GmbH,billing@contoso.com,EMEA,Retail,Starter,monthly,20,EUR,1058.40,0,paid,ACH,2023-07-01,2024-01-25,false,5,1
+U-004,ACC-U2,Contoso GmbH,billing@contoso.com,EMEA,Retail,Starter,monthly,20,EUR,1058.40,0,pending,ACH,2023-07-01,2024-02-25,false,5,1
+U-005,ACC-U3,Stark Labs,billing@stark.com,EMEA,Retail,Pro,monthly,5,USD,445.50,10,paid,credit_card,2023-08-01,2024-02-10,false,3,0
+U-006,ACC-U3,Stark Labs,billing@stark.com,EMEA,Retail,Pro,monthly,5,USD,445.50,10,paid,credit_card,2023-08-01,2024-03-10,false,3,3
+U-007,ACC-U4,Fabrikam Inc,billing@fabrikam.com,NA,Fintech,Pro,annual,30,USD,23760.00,20,paid,invoice,2023-09-01,2024-02-05,false,4,7
+U-008,ACC-U5,Stark Labs,billing@starklabs.com,NA,Media,Pro,monthly,8,GBP,1000.00,0,paid,wire,2023-10-01,2024-03-03,false,2,4
+U-009,ACC-U6,Tailspin Co,billing@tailspin.com,APAC,Media,Enterprise,annual,4,USD,11960.00,0,paid,ACH,2022-12-01,2023-12-30,false,5,0
+U-010,ACC-U6,Tailspin Co,billing@tailspin.com,APAC,Media,Enterprise,annual,4,USD,10166.00,15,paid,ACH,2022-12-01,2024-12-30,false,5,0
+U-011,ACC-U7,Litware Ltd,,EMEA,Fintech,Pro,monthly,12,USD,1188.00,0,failed,credit_card,2023-11-01,2024-03-15,true,1,9
+U-012,ACC-U5,Stark Labs,billing@starklabs.com,NA,Media,Pro,annual,8,USD,7920.00,0,void,wire,2023-10-01,2024-04-01,false,2,2
+U-013,ACC-U8,Adatum Corp,billing@adatum.com,LATAM,Energy,Starter,annual,10,USD,4165.00,15,paid,invoice,2024-01-01,2024-06-01,false,,0
+U-014,ACC-U8,Adatum Corp,billing@adatum.com,LATAM,Energy,Enterprise,monthly,50,USD,11960.00,20,pending,invoice,2024-01-01,2024-07-01,false,,1

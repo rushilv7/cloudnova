@@ -15,7 +15,7 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | # | Checkpoint | Gate, in short | Status |
 | --- | --- | --- | --- |
 | 0 | Repository and spec | Spec is the first commit; CSV hash unchanged | Done |
-| 1 | Eval fixtures and runner skeleton | Runner lists every case; all fail or skip | Not started |
+| 1 | Eval fixtures and runner skeleton | Runner lists every case; all fail or skip | Done |
 | 2 | Field normalization | Parsing, FX and date fixtures pass | Not started |
 | 3 | Conflict policy, tables, quality report | 5,125 = 109 + 2 + 28 + 4,986 | Not started |
 | 4 | Views and column dictionary | Six reference results match to the cent | Not started |
@@ -30,6 +30,7 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 Gate results and deviations from this plan, recorded as each checkpoint closes.
 
 - **Checkpoint 0.** The spec (`specs/solution.md`) is the first commit. The CSV moved to `data/cloudnova_invoices.csv` with SHA-256 `f542bc1f...9c89d84` unchanged. The repository already existed as an empty `main` branch when I started, so I did not run `git init`. Installed versions are `openai` 3.49.0 and `sqlglot` 30.31.0 on Python 3.11.13 with SQLite 3.50.2.
+- **Checkpoint 1.** `python -m evals` listed 57 offline cases and all 57 failed with `No module named 'app'`, exit status 1. Expected values are in `evals/expected.py` with the arithmetic beside them; five fixture ledgers are in `evals/fixtures/`. Deviation: the plan said one fixture ledger, and I used five small ones so each rule can be checked by hand on a few rows. The stubbed-model and live cases are not written yet; they are added at checkpoint 7 with the model adapter they exercise.
 
 ## What changed from the first plan
 
