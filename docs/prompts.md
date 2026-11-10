@@ -87,7 +87,7 @@ When a proposal is rejected, the model gets one repair message:
 >
 > Return one corrected JSON proposal for the same question. Keep every filter the user asked for. If the question cannot be expressed in the SQL this tool accepts, return "unavailable" with kind "unsupported_operation"; do not drop part of the question to make the query pass.
 
-**This prompt has not been run against a model.** No credentials were available during the build, so it has had no iteration against real replies. When checkpoint 8 runs, the changes it needs should be recorded here with the failing case that motivated each one.
+**First live run (checkpoint 8, 10 November 2026).** Credentials were filled in `.env` and the Foundry v1 endpoint plus deployment `cloudnova` were used. `python -m app --demo` and `python -m evals --live` both completed with **0 unexpected failures**. No prompt edit was required after the first real replies. Remaining open item: held-out questions (`HELD_OUT` still empty) still need to be supplied by the reviewer.
 
 ## 6. Decisions made while drafting the spec (to be completed by the author)
 

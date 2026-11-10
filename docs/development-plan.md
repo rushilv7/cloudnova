@@ -22,7 +22,7 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | 5 | Query guard and read-only execution | Query-boundary cases pass; database unchanged | Done |
 | 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Done |
 | 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Done |
-| 8 | Live evaluation (needs your Azure details) | Baseline, unseen, ambiguous and missing-data cases run | Not started |
+| 8 | Live evaluation (needs your Azure details) | Baseline, unseen, ambiguous and missing-data cases run | Done |
 | 9 | README, diagram, prompt log | Setup works from a fresh clone | Not started |
 
 ## Checkpoint notes
@@ -51,6 +51,11 @@ Gate results and deviations from this plan, recorded as each checkpoint closes.
   - **Extra CLI options.** `--build` builds without a model, `--proposal FILE` runs a hand-written proposal labelled as such, and `--reply TEXT` supplies a clarification when the terminal is not interactive.
   - **Live checkers are tested offline.** `live_checkers_discriminate` feeds each baseline checker one correct and one plausible wrong hand-written proposal (for example net revenue instead of paid, or churned accounts left in the MRR denominator) and requires the wrong one to fail.
   - **Held-out questions are still needed.** `HELD_OUT` in `evals/cases_live.py` is empty, and `live_held_out` reports SKIP until you supply them.
+- **Checkpoint 8.** After Azure Foundry credentials were added to `.env` (v1-style endpoint; deployment name `cloudnova`), the live path was exercised for the first time. Results:
+  - `python -m app --build` reconciled 5,125 = 109 + 2 + 28 + 4,986.
+  - `python -m app --ask` for 2024 paid revenue returned **USD 32,655,352.52**, named the three disputed IDs and wrote evidence.
+  - `python -m app --demo` answered all six stakeholder questions with the reference figures (APAC USD 6,164.03; refunds USD 8,925,163.84; Enterprise 21.85% / Starter 18.79%; top five table; exposure 894 / USD 28,983,255.97). Exit 0; 0 errors.
+  - `python -m evals --live` reported **96 cases: 93 passed, 0 failed, 2 expected failures, 1 skipped**. The expected failures are the window-function trend (unsupported) and Enterprise monthly churn in March 2024 (declined as `missing_data`, not a fabricated rate). The skip is `live_held_out` because no held-out questions have been supplied yet. No prompt changes were required.
 
 ## What changed from the first plan
 
