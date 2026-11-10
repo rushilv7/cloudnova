@@ -1,0 +1,13 @@
+# Secrets
+.env
+
+# Generated outputs (rebuilt from data/cloudnova_invoices.csv)
+out/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
