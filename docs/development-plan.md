@@ -23,7 +23,7 @@ Drafted 10 November 2026 against spec v0.2 (`CloudNova_Solution_Spec.md`, to bec
 | 6 | Answers, warnings and evidence | Baseline answers carry the right caveats and IDs | Done |
 | 7 | Model adapter and CLI | Clear errors without a key; live cases still skip | Done |
 | 8 | Live evaluation (needs your Azure details) | Baseline, unseen, ambiguous and missing-data cases run | Done |
-| 9 | README, diagram, prompt log | Setup works from a fresh clone | Not started |
+| 9 | README, diagram, prompt log | Setup works from a fresh clone | Done |
 
 ## Checkpoint notes
 
@@ -56,6 +56,7 @@ Gate results and deviations from this plan, recorded as each checkpoint closes.
   - `python -m app --ask` for 2024 paid revenue returned **USD 32,655,352.52**, named the three disputed IDs and wrote evidence.
   - `python -m app --demo` answered all six stakeholder questions with the reference figures (APAC USD 6,164.03; refunds USD 8,925,163.84; Enterprise 21.85% / Starter 18.79%; top five table; exposure 894 / USD 28,983,255.97). Exit 0; 0 errors.
   - `python -m evals --live` reported **96 cases: 93 passed, 0 failed, 2 expected failures, 1 skipped**. The expected failures are the window-function trend (unsupported) and Enterprise monthly churn in March 2024 (declined as `missing_data`, not a fabricated rate). The skip is `live_held_out` because no held-out questions have been supplied yet. No prompt changes were required.
+- **Checkpoint 9.** `README.md` documents clone → venv → `pip install -r requirements.txt` → `.env` → `--build` / `--demo` / `--ask` / `evals`. `docs/architecture.md` matches the modules as built (including `app/engine.py` and the private in-memory disputed-candidate check). `docs/prompts.md` holds the real session prompts, author corrections, agent mistakes and the runtime prompt notes; section 6 remains for the author to fill FX-direction and duplicate-precedence reasoning from the earlier unseen conversation. Gate check in a fresh clone directory: `pip install -r requirements.txt`, `python -m app --build` (5,125 = 109 + 2 + 28 + 4,986), `python -m app --proposal docs/example-proposal.json` (USD 32,655,352.52), and with the existing `.env` copied in, `python -m app --demo` exit 0. The earlier plan note that commits stay local is superseded: the remote is `origin` (`https://github.com/rushil-cog/cloudnova.git`) and the completed history is pushed on request.
 
 ## What changed from the first plan
 

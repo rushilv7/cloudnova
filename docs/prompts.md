@@ -34,6 +34,12 @@ The agent asked two questions before planning: which model provider to use, and 
 >
 > To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
 
+**Prompt 4: finish docs and publish**
+
+> Please complete checkpoint 9 and push the repo
+
+Checkpoint 9 had already landed architecture, the prompt log, `--show-prompt` and the example proposal; this prompt closed the remaining gate item (`README.md`), marked the checkpoint done in the development plan, and pushed to `origin`.
+
 ## 3. Corrections from the author that changed the design
 
 | Correction | What the agent had done | What changed |
